@@ -1,6 +1,56 @@
 # Copyright Broadcom, Inc. All Rights Reserved.
 # SPDX-License-Identifier: APACHE-2.0
 
+FROM debian:12 AS build
+
+RUN apt-get update -y && \
+  DEBIAN_FRONTEND="noninteractive" apt-get install -y --no-install-recommends \
+    build-essential \
+    ca-certificates \
+    check \
+    cmake \
+    curl \
+    git \
+    gnutls-dev \
+    libaio-dev \
+    libasio-dev \
+    libboost-dev \
+    libboost-program-options-dev \
+    libjemalloc-dev \
+    libncurses-dev \
+    libpam0g-dev \
+    scons
+RUN \
+  curl https://archive.mariadb.org/mariadb-11.4.7/source/mariadb-11.4.7.tar.gz --output /tmp/mariadb-11.4.7.tar.gz && \
+  tar --no-same-owner -C /tmp -xf /tmp/mariadb-11.4.7.tar.gz && \
+  cd /tmp/mariadb-11.4.7 && \
+  cmake \
+    -DCMAKE_INSTALL_PREFIX=/opt/bitnami/mariadb \
+    -DDEFAULT_SYSCONFDIR=/opt/bitnami/mariadb/conf \
+    -DSYSCONFDIR=/opt/bitnami/mariadb/conf \
+    -DINSTALL_SBINDIR=sbin \
+    -DINSTALL_SCRIPTDIR=/opt/bitnami/mariadb/bin \
+    -DINSTALL_PLUGINDIR=plugin \
+    -DINSTALL_INFODIR=/opt/bitnami/mariadb/info \
+    -DINSTALL_SUPPORTFILESDIR=/opt/bitnami/mariadb/share \
+    -DMYSQL_DATADIR=/opt/bitnami/mariadb/data \
+    -DCURSES_INCLUDE_PATH=/usr/include/ \
+    -DMYSQL_UNIX_ADDR=/opt/bitnami/mariadb/tmp/mysql.sock \
+    -DENABLED_LOCAL_INFILE=ON \
+    -DWITH_INNOBASE_STORAGE_ENGINE=1 \
+    -DWITH_ARCHIVE_STORAGE_ENGINE=1 \
+    -DWITH_BLACKHOLE_STORAGE_ENGINE=1 \
+    -DWITH_PERFSCHEMA_STORAGE_ENGINE=1 \
+    -DWITH_FEDERATED_STORAGE_ENGINE=1 \
+    -DWITH_PARTITION_STORAGE_ENGINE=1 \
+    -DPLUGIN_AUTH_PAM=YES && \
+  make --jobs=5 && \
+  make install --jobs=5 && \
+  git clone --branch release_26.4.23 https://github.com/codership/galera.git /tmp/libgalera && \
+  cd /tmp/libgalera && \
+  git submodule update --init --recursive && \
+  ./scripts/build.sh
+
 FROM docker.io/bitnami/minideb:bookworm
 
 ARG DOWNLOADS_URL="downloads.bitnami.com/files/stacksmith"
@@ -29,7 +79,6 @@ RUN install_packages ca-certificates curl iproute2 ldap-utils libaio1 libaudit1 
 RUN mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ || exit 1 ; \
     COMPONENTS=( \
       "ini-file-1.4.7-17-linux-${OS_ARCH}-debian-12" \
-      "mariadb-galera-11.4.7-2-linux-${OS_ARCH}-debian-12" \
     ) ; \
     for COMPONENT in "${COMPONENTS[@]}"; do \
       if [ ! -f "${COMPONENT}.tar.gz" ]; then \
@@ -40,6 +89,7 @@ RUN mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ || exit 1 ; \
       tar -zxf "${COMPONENT}.tar.gz" -C /opt/bitnami --strip-components=2 --no-same-owner ; \
       rm -rf "${COMPONENT}".tar.gz{,.sha256} ; \
     done
+COPY --from=build /opt/bitnami/mariadb /opt/bitnami/mariadb
 RUN apt-get update && apt-get upgrade -y && \
     apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
 RUN chmod g+rwX /opt/bitnami
