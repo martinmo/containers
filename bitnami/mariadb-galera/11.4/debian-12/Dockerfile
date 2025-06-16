@@ -43,7 +43,9 @@ RUN \
     -DWITH_PERFSCHEMA_STORAGE_ENGINE=1 \
     -DWITH_FEDERATED_STORAGE_ENGINE=1 \
     -DWITH_PARTITION_STORAGE_ENGINE=1 \
-    -DPLUGIN_AUTH_PAM=YES && \
+    -DPLUGIN_AUTH_PAM=YES \
+    -DCMAKE_CXX_COMPILE_FLAGS='-Og -g3' \
+    -DCMAKE_C_COMPILE_FLAGS='-Og -g3' && \
   make --jobs=5 && \
   make install --jobs=5 && \
   git clone --branch release_26.4.23 https://github.com/codership/galera.git /tmp/libgalera && \
