@@ -55,7 +55,8 @@ RUN \
   git clone --branch release_26.4.23 https://github.com/codership/galera.git /tmp/libgalera && \
   cd /tmp/libgalera && \
   git submodule update --init --recursive && \
-  ./scripts/build.sh
+  ./scripts/build.sh && \
+  cp libgalera_smm.so /opt/bitnami/mariadb/lib
 
 FROM docker.io/bitnami/minideb:bookworm
 
