@@ -56,7 +56,11 @@ RUN \
   cd /tmp/libgalera && \
   git submodule update --init --recursive && \
   ./scripts/build.sh --debug && \
-  cp libgalera_smm.so /opt/bitnami/mariadb/lib
+  cp libgalera_smm.so /opt/bitnami/mariadb/lib && \
+  rm -rf /opt/bitnami/mariadb/mariadb-test && \
+  strip /opt/bitnami/mariadb/bin/mariadb-backup && \
+  strip /opt/bitnami/mariadb/bin/mariadb-ldb && \
+  strip /opt/bitnami/mariadb/bin/sst_dump
 
 FROM docker.io/bitnami/minideb:bookworm
 
