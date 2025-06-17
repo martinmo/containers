@@ -23,7 +23,9 @@ RUN apt-get update -y && \
     libssl-dev \
     scons
 RUN \
-  curl https://archive.mariadb.org/mariadb-11.4.7/source/mariadb-11.4.7.tar.gz --output /tmp/mariadb-11.4.7.tar.gz && \
+  curl -L https://dlm.mariadb.com/4273371/MariaDB/mariadb-11.4.7/source/mariadb-11.4.7.tar.gz --output /tmp/mariadb-11.4.7.tar.gz && \
+  curl -L https://dlm.mariadb.com/4273374/MariaDB/mariadb-11.4.7/source/sha256sums.txt --output /tmp/sha256sums.txt && \
+  cd /tmp && sha256sum -c sha256sums.txt && \
   tar --no-same-owner -C /tmp -xf /tmp/mariadb-11.4.7.tar.gz && \
   cd /tmp/mariadb-11.4.7 && \
   cmake \
