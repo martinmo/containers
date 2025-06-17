@@ -82,7 +82,7 @@ ENV HOME="/" \
 COPY prebuildfs /
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 # Install required system packages and dependencies
-RUN install_packages ca-certificates curl iproute2 ldap-utils libaio1 libaudit1 libcap-ng0 libcrypt1 libgcc-s1 libicu72 libldap-common liblzma5 libncurses6 libpam-ldapd libpam0g libssl3 libstdc++6 libtinfo6 libxml2 nslcd procps psmisc rsync socat zlib1g binutils
+RUN install_packages ca-certificates curl iproute2 ldap-utils libaio1 libaudit1 libcap-ng0 libcrypt1 libgcc-s1 libicu72 libldap-common liblzma5 libncurses6 libpam-ldapd libpam0g libssl3 libstdc++6 libtinfo6 libxml2 nslcd procps psmisc rsync socat zlib1g binutils libc6-dbg
 RUN mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ || exit 1 ; \
     COMPONENTS=( \
       "ini-file-1.4.7-17-linux-${OS_ARCH}-debian-12" \
