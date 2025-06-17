@@ -16,9 +16,11 @@ RUN apt-get update -y && \
     libasio-dev \
     libboost-dev \
     libboost-program-options-dev \
+    libcurl4-openssl-dev \
     libjemalloc-dev \
     libncurses-dev \
     libpam0g-dev \
+    libssl-dev \
     scons
 RUN \
   curl https://archive.mariadb.org/mariadb-11.4.7/source/mariadb-11.4.7.tar.gz --output /tmp/mariadb-11.4.7.tar.gz && \
