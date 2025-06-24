@@ -60,8 +60,10 @@ RUN \
   rm -rf /opt/bitnami/mariadb/mariadb-test && \
   strip /opt/bitnami/mariadb/bin/mariadb-backup && \
   strip /opt/bitnami/mariadb/bin/mariadb-ldb && \
-  strip /opt/bitnami/mariadb/bin/sst_dump
-
+  strip /opt/bitnami/mariadb/bin/sst_dump && \
+  objcopy --only-keep-debug /opt/bitnami/mariadb/sbin/mariadbd /opt/bitnami/mariadb/sbin/mariadbd.debug && \
+  objcopy --strip-debug /opt/bitnami/mariadb/sbin/mariadbd && \
+  objcopy --add-gnu-debuglink=/opt/bitnami/mariadb/sbin/mariadbd.debug /opt/bitnami/mariadb/sbin/mariadbd
 FROM docker.io/bitnami/minideb:bookworm
 
 ARG DOWNLOADS_URL="downloads.bitnami.com/files/stacksmith"
