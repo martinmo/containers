@@ -23,8 +23,8 @@ RUN apt-get update -y && \
     libssl-dev \
     zlib1g-dev
 RUN \
-  curl -L https://dlm.mariadb.com/4273371/MariaDB/mariadb-11.4.7/source/mariadb-11.4.7.tar.gz --output /tmp/mariadb-11.4.7.tar.gz && \
-  curl -L https://dlm.mariadb.com/4273374/MariaDB/mariadb-11.4.7/source/sha256sums.txt --output /tmp/sha256sums.txt && \
+  curl -SsLf https://dlm.mariadb.com/4273371/MariaDB/mariadb-11.4.7/source/mariadb-11.4.7.tar.gz --output /tmp/mariadb-11.4.7.tar.gz && \
+  curl -SsLf https://dlm.mariadb.com/4273374/MariaDB/mariadb-11.4.7/source/sha256sums.txt --output /tmp/sha256sums.txt && \
   cd /tmp && sha256sum -c sha256sums.txt && \
   tar --no-same-owner -C /tmp -xf /tmp/mariadb-11.4.7.tar.gz && \
   cd /tmp/mariadb-11.4.7 && \
@@ -49,7 +49,7 @@ RUN \
     -DWITH_PARTITION_STORAGE_ENGINE=1 \
     -DPLUGIN_AUTH_PAM=YES \
     -DCMAKE_CXX_COMPILE_FLAGS='-Og -g3' \
-    -DCMAKE_C_COMPILE_FLAGS='-Og -g3' && \
+    -DCMAKE_C_COMPILE_FLAGS='-Og -g3' . && \
   make --jobs=5 && \
   make install --jobs=5 && \
   git clone --branch release_26.4.23 https://github.com/codership/galera.git /tmp/libgalera && \
