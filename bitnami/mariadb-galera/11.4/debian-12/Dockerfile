@@ -21,7 +21,7 @@ RUN apt-get update -y && \
     libncurses-dev \
     libpam0g-dev \
     libssl-dev \
-    scons
+    zlib1g-dev
 RUN \
   curl -L https://dlm.mariadb.com/4273371/MariaDB/mariadb-11.4.7/source/mariadb-11.4.7.tar.gz --output /tmp/mariadb-11.4.7.tar.gz && \
   curl -L https://dlm.mariadb.com/4273374/MariaDB/mariadb-11.4.7/source/sha256sums.txt --output /tmp/sha256sums.txt && \
