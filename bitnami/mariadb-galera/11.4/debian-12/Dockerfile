@@ -108,6 +108,11 @@ RUN apt-get update && apt-get upgrade -y && \
 RUN chmod g+rwX /opt/bitnami
 RUN find / -perm /6000 -type f -exec chmod a-s {} \; || true
 RUN mkdir /docker-entrypoint-initdb.d
+# This symlink redirects core dumps that are written to /tmp/cores (e.g., with
+# a kernel.core_pattern set to /tmp/cores/core.%e.%p.%t) to the mounted
+# (persistent) volume.  Requires that the directory inside the volume exists
+# and has the appropriate permissions.
+RUN ln -s /bitnami/mariadb/coredumps /tmp/cores
 RUN uninstall_packages curl
 
 COPY rootfs /
