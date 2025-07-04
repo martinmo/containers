@@ -1,6 +1,11 @@
 # Copyright Broadcom, Inc. All Rights Reserved.
 # SPDX-License-Identifier: APACHE-2.0
 
+ARG BUILDIMAGE=mariadb-galera-build:latest
+FROM $BUILDIMAGE AS build
+# We skip this large file for the main image and will re-add it to the debug image later.
+RUN rm -f /opt/bitnami/mariadb/sbin/mariadbd.debug
+
 FROM docker.io/bitnami/minideb:bookworm
 
 ARG DOWNLOADS_URL="downloads.bitnami.com/files/stacksmith"
@@ -29,7 +34,6 @@ RUN install_packages ca-certificates curl iproute2 ldap-utils libaio1 libaudit1 
 RUN mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ || exit 1 ; \
     COMPONENTS=( \
       "ini-file-1.4.7-17-linux-${OS_ARCH}-debian-12" \
-      "mariadb-galera-11.4.7-2-linux-${OS_ARCH}-debian-12" \
     ) ; \
     for COMPONENT in "${COMPONENTS[@]}"; do \
       if [ ! -f "${COMPONENT}.tar.gz" ]; then \
@@ -40,6 +44,7 @@ RUN mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ || exit 1 ; \
       tar -zxf "${COMPONENT}.tar.gz" -C /opt/bitnami --strip-components=2 --no-same-owner ; \
       rm -rf "${COMPONENT}".tar.gz{,.sha256} ; \
     done
+COPY --from=build /opt/bitnami/mariadb /opt/bitnami/mariadb
 RUN apt-get update && apt-get upgrade -y && \
     apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
 RUN chmod g+rwX /opt/bitnami
