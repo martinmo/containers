@@ -52,6 +52,12 @@ RUN find / -perm /6000 -type f -exec chmod a-s {} \; || true
 RUN mkdir /docker-entrypoint-initdb.d
 RUN uninstall_packages curl
 
+# This symlink redirects core dumps that are written to /tmp/cores (e.g., with
+# a kernel.core_pattern set to /tmp/cores/core.%e.%p.%t) to the mounted
+# (persistent) volume.  Requires that the directory inside the volume exists
+# and has the appropriate permissions.
+RUN ln -s /bitnami/mariadb/coredumps /tmp/cores
+
 COPY rootfs /
 RUN /opt/bitnami/scripts/mariadb-galera/postunpack.sh
 ENV APP_VERSION="11.4.7" \
