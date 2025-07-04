@@ -22,13 +22,14 @@ RUN apt-get update -y && \
     libpam0g-dev \
     libssl-dev \
     zlib1g-dev
+
 RUN \
   curl -SsLf https://dlm.mariadb.com/4273371/MariaDB/mariadb-11.4.7/source/mariadb-11.4.7.tar.gz --output /tmp/mariadb-11.4.7.tar.gz && \
   curl -SsLf https://dlm.mariadb.com/4273374/MariaDB/mariadb-11.4.7/source/sha256sums.txt --output /tmp/sha256sums.txt && \
   cd /tmp && sha256sum -c sha256sums.txt && \
-  tar --no-same-owner -C /tmp -xf /tmp/mariadb-11.4.7.tar.gz && \
-  cd /tmp/mariadb-11.4.7 && \
-  cmake \
+  tar --no-same-owner -C /tmp -xf /tmp/mariadb-11.4.7.tar.gz
+WORKDIR /tmp/mariadb-11.4.7
+RUN cmake \
     -DCMAKE_INSTALL_PREFIX=/opt/bitnami/mariadb \
     -DDEFAULT_SYSCONFDIR=/opt/bitnami/mariadb/conf \
     -DSYSCONFDIR=/opt/bitnami/mariadb/conf \
@@ -49,21 +50,24 @@ RUN \
     -DWITH_PARTITION_STORAGE_ENGINE=1 \
     -DPLUGIN_AUTH_PAM=YES \
     -DCMAKE_CXX_COMPILE_FLAGS='-Og -g3' \
-    -DCMAKE_C_COMPILE_FLAGS='-Og -g3' . && \
-  make --jobs=5 && \
-  make install --jobs=5 && \
-  git clone --branch release_26.4.23 https://github.com/codership/galera.git /tmp/libgalera && \
-  cd /tmp/libgalera && \
-  git submodule update --init --recursive && \
-  ./scripts/build.sh --debug && \
-  cp libgalera_smm.so /opt/bitnami/mariadb/lib && \
-  rm -rf /opt/bitnami/mariadb/mariadb-test && \
+    -DCMAKE_C_COMPILE_FLAGS='-Og -g3' .
+RUN make --jobs=5
+RUN make install --jobs=5
+
+RUN git clone --branch release_26.4.23 https://github.com/codership/galera.git /tmp/libgalera
+WORKDIR /tmp/libgalera
+RUN git submodule update --init --recursive
+RUN ./scripts/build.sh --debug
+RUN cp libgalera_smm.so /opt/bitnami/mariadb/lib
+
+RUN rm -rf /opt/bitnami/mariadb/mariadb-test && \
   strip /opt/bitnami/mariadb/bin/mariadb-backup && \
   strip /opt/bitnami/mariadb/bin/mariadb-ldb && \
   strip /opt/bitnami/mariadb/bin/sst_dump && \
   objcopy --only-keep-debug /opt/bitnami/mariadb/sbin/mariadbd /opt/bitnami/mariadb/sbin/mariadbd.debug && \
   objcopy --strip-debug /opt/bitnami/mariadb/sbin/mariadbd && \
   objcopy --add-gnu-debuglink=/opt/bitnami/mariadb/sbin/mariadbd.debug /opt/bitnami/mariadb/sbin/mariadbd
+
 FROM docker.io/bitnami/minideb:bookworm
 
 ARG DOWNLOADS_URL="downloads.bitnami.com/files/stacksmith"
